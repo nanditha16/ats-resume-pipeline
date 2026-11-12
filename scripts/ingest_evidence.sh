@@ -7,7 +7,7 @@
 # No chunking. The evidence is a curated single source of truth (Number Ledger,
 # Approved Claim Copy, Do-Not-Claim tables); chunking only produced citations to
 # files like X_part_5.md and cut the tables apart. Whole files + a parsed index
-# let every downstream check be a lookup. See docs/EVIDENCE_PIPELINE.md.
+# let every downstream check be a lookup. See docs/public/EVIDENCE_PIPELINE.md.
 #
 # Run it when a file in input/evidence/ is added, changed or removed. It is
 # incremental: a file whose content hash is unchanged is skipped; an output

@@ -482,6 +482,6 @@ assuming the resume is genuinely edit-free.
 ## Evidence checks and JD status
 
 The review page can check each proposed change against your own evidence files (numbers, do-not-claim rules, titles, dates, skills).
-See [docs/EVIDENCE_PIPELINE.md](docs/EVIDENCE_PIPELINE.md). Quick start: put role/project Markdown files in `input/evidence/`, run
+See [docs/public/EVIDENCE_PIPELINE.md](docs/public/EVIDENCE_PIPELINE.md). Quick start: put role/project Markdown files in `input/evidence/`, run
 `scripts/ingest_evidence.sh`, then `python3 scripts/jd_status.py` to see which JDs are ready to review or need a stage re-run. Your own
 employers, claims and name go in `policy/evidence_policy.local.json` (git-ignored); `policy/evidence_policy.json` holds shared defaults.

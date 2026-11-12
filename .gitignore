@@ -1,5 +1,6 @@
 # ats-resume-pipeline .gitignore
 # PERSONAL DATA: Never commit resume data, JDs, career docs, or generated prompts.
+README_LOCAL.txt
 
 # --- Personal data (NEVER commit) ---
 input/pdf/

@@ -1,5 +1,5 @@
 {
-  "_comment": "Shared defaults (safe to commit). Your own employers, claims and name go in policy/evidence_policy.local.json, which is git-ignored and overrides this file key by key. See docs/EVIDENCE_PIPELINE.md.",
+  "_comment": "Shared defaults (safe to commit). Your own employers, claims and name go in policy/evidence_policy.local.json, which is git-ignored and overrides this file key by key. See docs/public/EVIDENCE_PIPELINE.md.",
   "narrative_counts_as_verified": false,
   "profile_counts_as_verified": false,
   "dnc_unchecks_card": true,

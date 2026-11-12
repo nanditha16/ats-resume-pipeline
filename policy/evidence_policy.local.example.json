@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to policy/evidence_policy.local.json (git-ignored) and replace the placeholders with your own employers, name pattern and claim anchors. See docs/EVIDENCE_PIPELINE.md.",
+  "_comment": "Copy to policy/evidence_policy.local.json (git-ignored) and replace the placeholders with your own employers, name pattern and claim anchors. See docs/public/EVIDENCE_PIPELINE.md.",
   "role_map": [
     [
       "acme corp|acme",
