@@ -1,0 +1,24 @@
+{
+  "_comment": "Copy to policy/evidence_policy.local.json (git-ignored) and replace the placeholders with your own employers, name pattern and claim anchors. See docs/EVIDENCE_PIPELINE.md.",
+  "role_map": [
+    [
+      "acme corp|acme",
+      "acme"
+    ],
+    [
+      "globex",
+      "globex"
+    ]
+  ],
+  "role_labels": {
+    "acme": "Acme Corp",
+    "globex": "Globex"
+  },
+  "variant_owner_prefix": "^Jane[_ ]+Doe[_ ]+(?:resume[_ ]*)?",
+  "dnc_phrase_anchors": [
+    {
+      "pattern": "\\bmulti-agent\\b",
+      "rule": "text found in a do-not-claim row's claim"
+    }
+  ]
+}

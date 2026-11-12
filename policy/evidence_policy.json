@@ -1,0 +1,80 @@
+{
+  "_comment": "Shared defaults (safe to commit). Your own employers, claims and name go in policy/evidence_policy.local.json, which is git-ignored and overrides this file key by key. See docs/EVIDENCE_PIPELINE.md.",
+  "narrative_counts_as_verified": false,
+  "profile_counts_as_verified": false,
+  "dnc_unchecks_card": true,
+  "untick_when_keeping_dnc": true,
+  "dnc_stem_len": 5,
+  "role_map": [
+    [
+      "acme corp|acme",
+      "acme"
+    ]
+  ],
+  "role_labels": {
+    "acme": "Acme Corp"
+  },
+  "variant_owner_prefix": "",
+  "generic_numbers": [
+    "100",
+    "50",
+    "10",
+    "5",
+    "1",
+    "0"
+  ],
+  "audience_terms": [
+    "hospital",
+    "clinic",
+    "clinician",
+    "patient",
+    "investor",
+    "customer",
+    "regulator"
+  ],
+  "dnc_phrase_anchors": [],
+  "_example_dnc_phrase_anchors": [
+    {
+      "pattern": "\\bmulti-agent\\b",
+      "rule": "text found in a do-not-claim row's claim"
+    },
+    {
+      "pattern": "\\bzero outages\\b",
+      "claim": "Zero outages",
+      "file": "Employer.md",
+      "why": "what your evidence says instead",
+      "say_instead": ""
+    }
+  ],
+  "title_level_words": [
+    "principal",
+    "staff",
+    "director",
+    "head",
+    "vp",
+    "chief",
+    "president"
+  ],
+  "title_people_words": [
+    "manager",
+    "director",
+    "head"
+  ],
+  "skill_aliases": {
+    "postgresql": [
+      "postgres"
+    ],
+    "mongodb": [
+      "mongo"
+    ],
+    "javascript": [
+      "js"
+    ],
+    "golang": [
+      "go"
+    ],
+    "yaml": [
+      "yml"
+    ]
+  }
+}

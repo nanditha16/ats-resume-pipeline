@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ jd }} — Review &amp; Merge (Stage 5/6)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/review.css">
+</head>
+<body class="review-body">
+<div class="review-shell">
+
+  <header class="review-header">
+    <a href="/" class="btn btn--ghost btn--sm">← Dashboard</a>
+    <div class="review-title">
+      <h1>{{ jd }} <span class="review-subtitle">— Review &amp; Merge</span></h1>
+      <p id="reviewMeta" class="review-meta">Loading…</p>
+    </div>
+    <div class="review-actions">
+      <span id="acceptedCount" class="accepted-count">0 selected</span>
+      <button id="applyBtn" class="btn btn--primary" onclick="applyApproved()" disabled>
+        Apply approved changes → save resume
+      </button>
+    </div>
+  </header>
+
+  <div id="gatedBanner" class="banner banner--warn" style="display:none;"></div>
+  <div id="warnBanner" class="banner banner--warn review-warnings" style="display:none;"></div>
+
+  <div id="resultBanner" class="banner" style="display:none;"></div>
+
+  <p class="review-help">
+    Each card below is one candidate change from Stage 3 (paraphrase — reword
+    of existing fact only) or Stage 4 (evidence-backed new content). Checked
+    by default = what a hands-off Stage 5 run would apply on its own.
+    Uncheck anything you don't want; nothing is written to disk until you
+    click <strong>Apply approved changes</strong>. Word-count badges and the
+    running total (top right) exist because insertions especially only ever
+    add length — keep an eye on the page estimate as you approve items.
+  </p>
+
+  <div style="margin-bottom:12px;">
+    <button id="sortToggleBtn" class="btn btn--ghost btn--sm" onclick="toggleSort()">Sort: as generated</button>
+  </div>
+
+  <div id="changeList" class="change-list">
+    <p class="empty-state">Loading candidate changes…</p>
+  </div>
+
+</div>
+
+<script src="/static/js/review.js"></script>
+<script>initReview({{ jd|tojson }});</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "_comment": "Stage 10 Callback Score policy. All values provisional (decision D11); recalibrate after 10-15 applications with recorded outcomes. See docs/STAGE10_CALLBACK_OUTREACH_PLAN.md section 4.",
+  "threshold": 80,
+  "w_interview": 0.5,
+  "w_domain": 0.5,
+  "shortlist_bonus": {"YES": 5, "MAYBE": 0, "NO": -10},
+  "freshness_bonus": [[3, 10], [7, 5], [14, 0], [30, -5], [99999, -10]],
+  "gap_penalty_each": 3,
+  "gap_penalty_cap": 15,
+  "title_mismatch_penalty": 10,
+  "commutable_cities": ["Oakville", "Toronto", "Mississauga", "Burlington", "Milton", "Hamilton", "Brampton", "Etobicoke", "North York", "Markham", "Vaughan"]
+}

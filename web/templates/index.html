@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <header class="brand">
+      <div class="brand-mark">ATS</div>
+      <div class="brand-text">
+        <span class="brand-name">Pipeline</span>
+        <span class="brand-sub">Application Prep</span>
+      </div>
+    </header>
+
+    <div class="health-bar" id="healthBar">
+      <div class="health-item">
+        <span class="dot dot--pending" id="dotDocker"></span>
+        <span id="lblDocker">Docker checking…</span>
+      </div>
+      <div class="health-item">
+        <span class="dot dot--pending" id="dotResumes"></span>
+        <span id="lblResumes">Resume variants</span>
+      </div>
+      <div class="health-item">
+        <span class="dot dot--pending" id="dotEvidence"></span>
+        <span id="lblEvidence">Evidence chunks</span>
+      </div>
+    </div>
+
+    <nav class="steps" id="stepNav">
+      <button class="step-btn step-btn--active" id="navBtn0" onclick="showStep(0)">
+        <span class="step-num" id="navNum0">0</span>
+        <span>Setup</span>
+      </button>
+      <button class="step-btn" id="navBtn1" onclick="showStep(1)">
+        <span class="step-num" id="navNum1">1</span>
+        <span>Add JDs</span>
+      </button>
+      <button class="step-btn" id="navBtn2" onclick="showStep(2)">
+        <span class="step-num" id="navNum2">2</span>
+        <span>Rank Variants</span>
+      </button>
+      <button class="step-btn" id="navBtn3" onclick="showStep(3)">
+        <span class="step-num" id="navNum3">3</span>
+        <span>ATS Analysis</span>
+      </button>
+      <button class="step-btn" id="navBtn4" onclick="showStep(4)">
+        <span class="step-num" id="navNum4">4</span>
+        <span>Review Board</span>
+      </button>
+      <button class="step-btn" id="navBtn5" onclick="showStep(5)">
+        <span class="step-num" id="navNum5">⚙</span>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <div class="trust-legend">
+      <div class="trust-title">Trust levels</div>
+      <div class="trust-row"><span class="badge badge--green">Verified</span>&nbsp;Claude.ai reviewed</div>
+      <div class="trust-row"><span class="badge badge--yellow">Advisory</span>&nbsp;Local model, check gaps</div>
+      <div class="trust-row"><span class="badge badge--red">Blocked</span>&nbsp;Failed all model tests</div>
+    </div>
+  </aside>
+
+  <!-- ── Main ────────────────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Step 0: Setup -->
+    <section class="step-panel" id="step-0">
+      <div class="guide-bubble">
+        <div class="guide-avatar">✦</div>
+        <div class="guide-body">
+          <p class="guide-text">Welcome. I'll guide you through turning job descriptions into fully tailored, evidence-backed application packages — step by step.</p>
+          <p class="guide-text">Let me check your environment first.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">System check</h2>
+        <div class="check-list">
+          <div class="check-row" id="chkDocker">
+            <span class="check-icon" id="chkDockerIcon">⋯</span>
+            <span>Docker container running (<code>markitdown</code>)</span>
+          </div>
+          <div class="check-row" id="chkResumes">
+            <span class="check-icon" id="chkResumesIcon">⋯</span>
+            <span id="chkResumesLabel">Resume variants in output/resume/</span>
+          </div>
+          <div class="check-row" id="chkEvidence">
+            <span class="check-icon" id="chkEvidenceIcon">⋯</span>
+            <span id="chkEvidenceLabel">Evidence (output/evidence/)</span>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn--primary" onclick="runPipeline()">Run pipeline (run.sh)</button>
+          <button class="btn btn--ghost" onclick="ingestEvidence()">Refresh evidence</button>
+          <button class="btn btn--ghost" onclick="loadStatus()">↻ Recheck</button>
+        </div>
+        <p class="hint">Run the pipeline after adding new resume PDFs to <code>input/pdf/</code>. Evidence ingest is separate — run it once when you add files to <code>input/evidence/</code>.</p>
+        <p class="hint" style="color:var(--yellow)">⚠️ Name resume PDFs with no spaces (use <code>_</code> or <code>-</code> instead) — e.g. <code>Nanditha_Murthy_Resume_Deloitte.pdf</code>, not <code>Nanditha Murthy Resume.pdf</code>. Spaces in the filename break Stage 3/4 prompt generation downstream.</p>
+      </div>
+
+      <!-- Variant Bank card — shown after resumes exist in output/resume/ -->
+      <div class="card" id="variantBankCard">
+        <h2 class="card-title">Build variant bank <span class="badge badge--green" style="font-size:11px;vertical-align:middle;margin-left:6px;">One-time</span></h2>
+        <p class="card-desc">
+          Packages all your resume variants into a reusable prompt file
+          (<code>prompts/variant_bank.txt</code>) and generates the evaluation
+          instructions file (<code>prompts/variant_rank_prompt.txt</code>).
+          Both are static — rebuild only when your resumes change.
+          Claude.ai uses all three files together: bank + instructions + the small
+          per-JD file generated in Step 2.
+        </p>
+
+        <div class="check-row" id="bankStatusRow" style="margin-bottom:12px;">
+          <span class="check-icon" id="bankStatusIcon">⋯</span>
+          <span id="bankStatusLabel">Checking variant bank…</span>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn--primary" id="btnBuildBank" onclick="buildVariantBank(false)">
+            Build variant bank
+          </button>
+          <button class="btn btn--ghost" id="btnRebuildBank" onclick="buildVariantBank(true)" style="display:none;">
+            Rebuild bank
+          </button>
+          <a class="btn btn--ghost" id="btnDownloadBank" href="/api/download-bank" download style="display:none;">
+            ↓ Download variant_bank.txt
+          </a>
+        </div>
+
+        <p class="hint" id="bankHint">
+          Run this after the pipeline converts your PDFs (above). Re-run only when
+          you add or edit resume files — not between job applications.
+        </p>
+
+        <div class="log-panel hidden" id="log-bank">
+          <div class="log-header">
+            <span class="log-title">Output — build_variant_bank.sh</span>
+            <button class="log-close" onclick="closeLog('log-bank')">✕</button>
+          </div>
+          <pre class="log-body" id="log-bank-body"></pre>
+        </div>
+      </div>
+
+      <div class="log-panel hidden" id="log-setup">
+        <div class="log-header">
+          <span class="log-title" id="log-setup-title">Output</span>
+          <button class="log-close" onclick="closeLog('log-setup')">✕</button>
+        </div>
+        <pre class="log-body" id="log-setup-body"></pre>
+      </div>
+
+      <div class="next-row">
+        <button class="btn btn--next" onclick="showStep(1)">Add job descriptions →</button>
+      </div>
+    </section>
+
+    <!-- Step 1: Add JDs -->
+    <section class="step-panel hidden" id="step-1">
+      <div class="guide-bubble">
+        <div class="guide-avatar">✦</div>
+        <div class="guide-body">
+          <p class="guide-text">Paste a job description or drop .txt files. Each one is saved as JD1.txt, JD2.txt, etc. You can add up to 25 at once.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Add job descriptions</h2>
+        <div class="tab-bar">
+          <button class="tab-btn tab-btn--active" id="tabBtnPaste" onclick="switchTab('paste')">Paste text</button>
+          <button class="tab-btn" id="tabBtnUpload" onclick="switchTab('upload')">Upload .txt file</button>
+        </div>
+
+        <div id="tabPaste">
+          <textarea class="jd-textarea" id="jdText" placeholder="Paste the full job description here…"></textarea>
+          <div class="action-row">
+            <button class="btn btn--primary" onclick="submitJDText()">Save as next JD</button>
+          </div>
+        </div>
+
+        <div id="tabUpload" class="hidden">
+          <div class="dropzone" id="dropzone"
+               ondragover="event.preventDefault(); this.classList.add('drag-over')"
+               ondragleave="this.classList.remove('drag-over')"
+               ondrop="handleDrop(event)">
+            <div class="drop-icon">↑</div>
+            <p>Drop .txt files here</p>
+            <p class="hint">or <label class="file-link">browse<input type="file" id="fileInput" multiple accept=".txt" onchange="handleFileSelect(event)" hidden></label></p>
+          </div>
+        </div>
+
+        <div class="saved-jds" id="savedJDs"></div>
+
+        <div class="action-row" style="margin-top:14px">
+          <button class="btn btn--ghost" onclick="convertAndCheckJDs('btnConvertJDsStep1','log-stage1-step1','log-stage1-step1-body',false)" id="btnConvertJDsStep1">
+            Convert JDs → output/JDx.md
+          </button>
+        </div>
+        <p class="hint">Runs the pipeline so your new JD(s) are ready for Step 2. Skip this if you're about to add more JDs first.</p>
+        <div class="log-panel hidden" id="log-stage1-step1">
+          <div class="log-header">
+            <span class="log-title">Output — run.sh</span>
+            <button class="log-close" onclick="closeLog('log-stage1-step1')">✕</button>
+          </div>
+          <pre class="log-body" id="log-stage1-step1-body"></pre>
+        </div>
+      </div>
+
+      <div class="next-row">
+        <button class="btn btn--ghost" onclick="showStep(0)">← Back</button>
+        <button class="btn btn--next" onclick="showStep(2)">Generate variant rankings →</button>
+      </div>
+    </section>
+
+    <!-- Step 2: Rank Variants -->
+    <section class="step-panel hidden" id="step-2">
+      <div class="guide-bubble">
+        <div class="guide-avatar">✦</div>
+        <div class="guide-body">
+          <p class="guide-text">For each JD, I generate a small JD file that pairs with your variant bank. Upload <strong>both files</strong> to Claude.ai — it ranks your resume variants and tells you which one to use.</p>
+          <p class="guide-text">This is the only step that needs your judgment. Claude.ai makes the call, not a local model.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">2a — Verify files ready</h2>
+        <p class="card-desc">
+          Confirms the three files exist for each JD. No new files are created —
+          <code>output/JDx.md</code> already exists from the pipeline (Step 0),
+          and the bank + instructions were built in Step 0.
+          If anything is missing, this will tell you exactly what to fix.
+        </p>
+        <div class="action-row">
+          <button class="btn btn--primary" onclick="generateStage1()" id="btnGenStage1">
+            Check all JDs
+          </button>
+        </div>
+        <div class="log-panel hidden" id="log-stage1">
+          <div class="log-header">
+            <span class="log-title">Output — variant_rank.sh</span>
+            <button class="log-close" onclick="closeLog('log-stage1')">✕</button>
+          </div>
+          <pre class="log-body" id="log-stage1-body"></pre>
+        </div>
+        <div class="action-row hidden" id="log-stage1-fix" style="margin-top:8px">
+          <button class="btn btn--ghost" onclick="convertAndCheckJDs()" id="btnConvertJDs">
+            ⚠️ Missing output/JDx.md — run pipeline now
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">2b — Upload both files to Claude.ai, paste response</h2>
+        <p class="card-desc">
+          For each JD: download <strong>both</strong> files below and upload them together
+          to <a href="https://claude.ai" target="_blank" class="link">claude.ai</a> as
+          file attachments in one conversation. Paste Claude's full response back here.
+        </p>
+        <div class="hint" style="margin-bottom:14px;padding:10px 14px;background:var(--surface-2);border-left:3px solid var(--teal);border-radius:4px;line-height:1.7">
+          <strong>Three files, one conversation:</strong>
+          <code>variant_bank.txt</code> (built in Step 0, reuse always) +
+          <code>variant_rank_prompt.txt</code> (built in Step 0, reuse always) +
+          <code>jd_current.txt</code> (generated per JD above).
+          Use file upload — not copy/paste — clipboard corrupts em-dashes.
+        </div>
+        <div class="jd-cards" id="jdRankCards">
+          <p class="empty-state">Generate JD files first (step 2a).</p>
+        </div>
+      </div>
+
+      <div class="next-row">
+        <button class="btn btn--ghost" onclick="showStep(1)">← Back</button>
+        <button class="btn btn--next" onclick="showStep(3)">Generate ATS analysis →</button>
+      </div>
+    </section>
+
+    <!-- Step 3: ATS Analysis -->
+    <section class="step-panel hidden" id="step-3">
+      <div class="guide-bubble">
+        <div class="guide-avatar">✦</div>
+        <div class="guide-body">
+          <p class="guide-text">Now I'll generate three prompts per qualifying JD: ATS gap analysis, paraphrase recommendations, and evidence gap check. Upload each to Claude.ai and paste responses back.</p>
+          <p class="guide-text">Stages 2-4 can be run in parallel across different JDs — each is self-contained.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">3a — Generate Stages 2-4 prompts</h2>
+        <p class="card-desc">Runs <code>batch_prep.sh --continue</code>. Only processes JDs with a ranking response. Poor-fit JDs skip automatically.</p>
+        <div class="action-row">
+          <button class="btn btn--primary" onclick="generateStages24()" id="btnGenStages24">
+            Generate ATS prompts for all ready JDs
+          </button>
+          <label class="force-label">
+            <input type="checkbox" id="forceRegen"> Force regenerate existing
+          </label>
+        </div>
+        <div class="action-row" id="stage2ApiRow" style="display:none;flex-wrap:wrap;gap:10px;align-items:center">
+          <select id="apiProviderSelect" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:5px;font-family:var(--font-body);font-size:13px;cursor:pointer">
+            <option value="auto">Auto (Vertex AI if configured, else Claude)</option>
+            <option value="vertex">Google Vertex AI (~$0.001/JD)</option>
+            <option value="claude">Anthropic Claude (~$0.03/JD)</option>
+          </select>
+          <button class="btn btn--primary" style="background:var(--green)" onclick="runStageAPI(2)" id="btnRunStage2Api">
+            ⚡ Run Stage 2 via API
+          </button>
+          <button class="btn btn--primary" style="background:var(--green)" onclick="runStageAPI(3)" id="btnRunStage3Api">
+            ⚡ Run Stage 3 via API
+          </button>
+          <button class="btn btn--primary" style="background:var(--green)" onclick="runStageAPI(4)" id="btnRunStage4Api">
+            ⚡ Run Stage 4 via API
+          </button>
+          <span class="hint">Runs for all JDs with prompts ready — responses saved automatically</span>
+        </div>
+        <div class="log-panel hidden" id="log-stage2-api">
+          <div class="log-header">
+            <span class="log-title" id="log-stage2-api-title">Stage API — Live output</span>
+            <button class="log-close" onclick="closeLog('log-stage2-api')">✕</button>
+          </div>
+          <pre class="log-body" id="log-stage2-api-body"></pre>
+        </div>
+        <div class="log-panel hidden" id="log-stages24">
+          <div class="log-header">
+            <span class="log-title">Output — batch_prep.sh --continue</span>
+            <button class="log-close" onclick="closeLog('log-stages24')">✕</button>
+          </div>
+          <pre class="log-body" id="log-stages24-body"></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">ATS Assessment Dashboard — Stage 2 sub-scores</h2>
+        <p class="card-desc">Every JD with a Stage 2 response, compared side by side against the Stage 0/1 fit verdict already computed for it.</p>
+        <div id="atsDashboardTable">
+          <p class="empty-state">No Stage 2 responses yet.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">3b — Upload prompts + paste responses</h2>
+        <div class="jd-cards" id="jdAtsCards">
+          <p class="empty-state">Generate ATS prompts first (step 3a).</p>
+        </div>
+      </div>
+
+      <div class="next-row">
+        <button class="btn btn--ghost" onclick="showStep(2)">← Back</button>
+        <button class="btn btn--next" onclick="showStep(4)">View full dashboard →</button>
+      </div>
+    </section>
+
+    <!-- Step 4: Review Board -->
+    <section class="step-panel hidden" id="step-4">
+      <div class="guide-bubble">
+        <div class="guide-avatar">✦</div>
+        <div class="guide-body">
+          <p class="guide-text">Every JD with Stage 2/3/4 responses, grouped by what to do next: review &amp; merge, or see why one was gated. Everything still generating stays out of the way below.</p>
+        </div>
+      </div>
+
+      <div class="dashboard-header">
+        <h2 class="card-title" style="margin:0">Review Board</h2>
+        <button class="btn btn--ghost btn--sm" onclick="loadStatus()">↻ Refresh</button>
+      </div>
+
+      <div id="reviewBoard">
+        <p class="empty-state">Loading…</p>
+      </div>
+
+      <details class="detail-table" style="margin-top:24px;">
+        <summary class="card-title" style="cursor:pointer;font-size:14px;">Detailed stage status (all JDs) ▾</summary>
+        <div class="db-row db-row--header" style="margin-top:12px;">
+          <div>JD</div>
+          <div>Chosen variant</div>
+          <div>Status</div>
+          <div>S1</div><div>S2</div><div>S3</div><div>S4</div>
+        </div>
+        <div id="dashboardRows">
+          <p class="empty-state">Loading…</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Step 5: Settings / BYOK -->
+    <section class="step-panel hidden" id="step-5">
+      <div class="guide-bubble">
+        <div class="guide-avatar">✦</div>
+        <div class="guide-body">
+          <p class="guide-text">Configure API access for Stage 2 automation. Your keys are stored locally — they never leave your machine.</p>
+          <p class="guide-text">Without a key, you stay on the free tier: all prompts are generated, and you upload them to Claude.ai manually.</p>
+        </div>
+      </div>
+
+      <div class="card" id="tierCard">
+        <h2 class="card-title">Current tier</h2>
+        <div id="tierStatus"><p class="empty-state">Loading…</p></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Pro tier — Bring Your Own Key (BYOK)</h2>
+        <p class="card-desc">Add an API key to unlock Stage 2 automation. Stages 3 and 4 remain manual — human review is required for those.</p>
+
+        <div class="tab-bar">
+          <button class="tab-btn tab-btn--active" id="tabBtnGCP" onclick="switchSettingsTab('gcp')">Google Vertex AI</button>
+          <button class="tab-btn" id="tabBtnClaude" onclick="switchSettingsTab('claude')">Anthropic Claude</button>
+        </div>
+
+        <div id="settingsGCP">
+          <p class="hint" style="margin-bottom:12px">Uses gcloud Application Default Credentials. Run <code>gcloud auth application-default login</code> first.</p>
+          <label style="font-size:12px;color:var(--text-muted)">GCP Project ID</label>
+          <input class="jd-textarea" id="gcpProject" style="min-height:40px;padding:8px 12px;font-family:var(--font-mono)"
+                 placeholder="your-project-123">
+          <p class="hint">~$0.001 per JD · gemini-2.5-flash · billed to your GCP project</p>
+          <div class="hint" style="margin-top:10px;padding:10px 12px;background:var(--surface-2);border-left:3px solid var(--yellow);border-radius:4px;line-height:1.6">
+            <strong>⚠️ Token expiry:</strong> gcloud credentials expire periodically. If Stage 2 returns
+            <code>Reauthentication is needed</code>, run this on your Mac terminal and restart the server:<br>
+            <code style="display:block;margin-top:6px;padding:6px 8px;background:var(--surface-3);border-radius:3px">
+              gcloud auth application-default login
+            </code>
+            The Docker container picks up the refreshed token automatically via the mounted credentials folder.
+            You do not need to rebuild the container.
+          </div>
+        </div>
+
+        <div id="settingsClaude" class="hidden">
+          <p class="hint" style="margin-bottom:12px">Get key at <a href="https://console.anthropic.com" target="_blank" class="link">console.anthropic.com</a> → API Keys → Create key</p>
+          <label style="font-size:12px;color:var(--text-muted)">Anthropic API Key</label>
+          <input class="jd-textarea" id="claudeKey" type="password" style="min-height:40px;padding:8px 12px;font-family:var(--font-mono)"
+                 placeholder="sk-ant-api03-...">
+          <p class="hint">~$0.03 per JD · claude-sonnet-4-5 · same model as Claude.ai</p>
+          <div class="hint" style="margin-top:10px;padding:10px 12px;background:var(--surface-2);border-left:3px solid var(--yellow);border-radius:4px;line-height:1.6">
+            <strong>⚠️ Key storage:</strong> The API key must be stored as plain text only — no filename or extra text appended. If Stage 2 returns <code>invalid x-api-key</code>, verify the key file is clean:<br>
+            <code style="display:block;margin-top:6px;padding:6px 8px;background:var(--surface-3);border-radius:3px">
+              printf 'sk-ant-api03-YOUR_KEY' &gt; ~/.markitdown-codespace/claude_api_key
+            </code>
+            Use <code>printf</code> not <code>echo</code> — echo can append extra characters.
+            Check length with <code>wc -c ~/.markitdown-codespace/claude_api_key</code> — should be ~108 chars.
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn--primary" onclick="saveConfig()">Save configuration</button>
+          <button class="btn btn--ghost" onclick="loadTierStatus()">↻ Recheck tier</button>
+        </div>
+        <p class="hint">Keys stored in <code>~/.markitdown-codespace/config.json</code> — never committed to git, never sent anywhere.</p>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Interested in the Team tier?</h2>
+        <p class="card-desc">Team tier includes managed API access (no BYOK needed), Stage 3 and 4 automation, and multi-candidate batch processing.</p>
+        <div class="action-row">
+          <a class="btn btn--ghost" href="https://forms.gle/sw6kWLgJJe3f8nHUA" target="_blank">Register interest ↗</a>
+          <a class="btn btn--ghost" href="https://github.com/nanditha16/ats-resume-pipeline/blob/main/ROADMAP.md" target="_blank">View roadmap ↗</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── Modal ────────────────────────────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Prompt</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ─────────────────────────────────────────────────────────────── -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

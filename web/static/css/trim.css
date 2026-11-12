@@ -1,0 +1,41 @@
+.cap-control {
+  font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+}
+.cap-control input {
+  width: 48px; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); padding: 4px 6px; font-size: 12px;
+}
+
+.role-group { margin-bottom: 22px; }
+.role-group-title {
+  font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.role-group-count { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+.trim-card {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); padding: 10px 12px; margin-bottom: 8px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.trim-card--keep { opacity: 0.55; }
+.trim-card--marked { border-color: var(--red); }
+.trim-card input[type="checkbox"] {
+  margin-top: 3px; width: 16px; height: 16px; accent-color: var(--red); cursor: pointer;
+}
+.trim-card-body { flex: 1; min-width: 0; }
+.trim-card-meta {
+  display: flex; gap: 6px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;
+}
+.trim-badge {
+  font-size: 10px; padding: 1px 6px; border-radius: 3px;
+  background: var(--surface); color: var(--text-dim); border: 1px solid var(--border);
+}
+.trim-badge--metric { color: var(--green); }
+.trim-badge--nometric { color: var(--text-dim); }
+.trim-bullet-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+.trim-reason { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+.trim-keep-label {
+  font-size: 11px; color: var(--green); font-weight: 600; padding-top: 3px;
+}

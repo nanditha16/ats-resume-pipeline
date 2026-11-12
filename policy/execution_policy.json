@@ -1,0 +1,162 @@
+{
+  "_meta": {
+    "purpose": "Single source of truth for execution policy. UI and CLI both read this — neither hardcodes stage rules independently. Editing this file changes system behavior everywhere.",
+    "evidence_basis": "Trust classifications below are derived from real testing in this project: 3 models (llama3:8b, llama3.1:8b, deepseek-r1:14b) run against identical JD/resume/prompts. See ORCHESTRATION_SUMMARY.md for full evidence. This is not a theoretical policy — every classification traces to an observed failure or success.",
+    "last_updated": "2026-06-21",
+    "schema_version": 1
+  },
+
+  "trust_levels": {
+    "authoritative": {
+      "label": "Verified (Claude.ai manual upload)",
+      "description": "Human reviewed the output after running it through Claude.ai. The system cannot mark anything authoritative automatically — this label only applies after a human confirms it.",
+      "color": "green"
+    },
+    "advisory": {
+      "label": "Draft (local model — may be incorrect)",
+      "description": "Local model output, on a stage with confirmed-adequate reliability. Treat as a starting point, not a final answer. Spot-check against the source resume/JD before acting on it.",
+      "color": "yellow"
+    },
+    "unsafe": {
+      "label": "Do not use without review",
+      "description": "Local model output on a stage with confirmed unreliable behavior (fabrication, hallucinated entities, ignored task format). 3/3 tested models failed these stages. Never present this as a final answer in any UI.",
+      "color": "red"
+    }
+  },
+
+  "stages": {
+    "stage_0_1_variant_rank": {
+      "script": "variant_rank.sh",
+      "description": "Fit gate + ranking across all resume variants against a JD",
+      "task_shape": "multi-document (up to 21 full resumes + JD in one prompt, ~52K tokens observed)",
+      "execution_policy": "manual_only",
+      "local_execution_allowed": false,
+      "default_action_on_run_click": "generate_prompt_file_only",
+      "evidence": "3/3 tested models failed: never named correct number of variants (llama3.1:8b: 0 of 21 named; deepseek-r1:14b: only 3 of 21 addressed, invented 2 non-existent variants). Larger/slower model did not improve quality (738s vs ~300s, still wrong).",
+      "ui_must_show": [
+        "Stage requires manual Claude.ai review — local execution is disabled by default",
+        "If user overrides: explicit confirmation step naming the specific failure modes observed, not a generic warning"
+      ]
+    },
+    "stage_1_5_prepare_variant": {
+      "script": "prepare_variant.sh",
+      "description": "Isolates chosen variant + JD in output/, archives the rest",
+      "task_shape": "deterministic file operation, no LLM involved",
+      "execution_policy": "local_always",
+      "local_execution_allowed": true,
+      "default_action_on_run_click": "execute_immediately",
+      "evidence": "No model involved — pure file move logic, tested directly against mock and real data.",
+      "ui_must_show": []
+    },
+    "stage_2_ats_optimize": {
+      "script": "ats_optimize.sh",
+      "description": "Full ATS score for one resume against one JD",
+      "task_shape": "single-document (~4-16K tokens observed)",
+      "execution_policy": "local_allowed",
+      "local_execution_allowed": true,
+      "default_action_on_run_click": "prompt_user_local_or_cloud",
+      "evidence": "All 3 models produced directionally reasonable scores and grounded strengths. 2/3 models (llama3:8b, llama3.1:8b) fabricated one Critical Gap each (incorrectly claiming the candidate lacks core PM experience). deepseek-r1:14b was accurate on this stage with no fabricated claims, but 3x slower (~870s vs ~280s).",
+      "ui_must_show": [
+        "Default trust level: advisory, not authoritative",
+        "Recommend spot-checking the Critical Gaps section specifically — this is where 2/3 models fabricated content"
+      ]
+    },
+    "stage_3_ats_recommend": {
+      "script": "ats_recommend.sh",
+      "description": "File-level, line-level paraphrase edit recommendations for one resume",
+      "task_shape": "multi-section (single resume but all 9 chunks + full instructions, ~6-24K tokens observed)",
+      "execution_policy": "manual_only",
+      "local_execution_allowed": false,
+      "default_action_on_run_click": "generate_prompt_file_only",
+      "evidence": "3/3 tested models ignored the actual task (quote exact text, propose minimal paraphrase, cite chunk filename). Instead produced: a formatting/style audit (deepseek-r1:14b), a date-overlap audit (llama3.1:8b), neither resembling the requested output. All three referenced filenames/sections that don't exist in the actual chunk inventory.",
+      "ui_must_show": [
+        "Stage requires manual Claude.ai review — local execution is disabled by default",
+        "If user overrides: explicit confirmation step naming the specific failure modes observed, not a generic warning"
+      ]
+    },
+    "stage_3_5_evidence_gap": {
+      "script": "ats_evidence_gap.sh",
+      "description": "Cross-references JD gaps from Stage 2/3 against the evidence corpus (Career_Wealth.xlsx, project notes, employer-specific PDFs) to find real experience that was never captured in any resume variant",
+      "task_shape": "multi-document — resume chunks + evidence corpus + gap list + JD in one prompt. Token count scales with evidence corpus size; observed range 8K–60K depending on corpus.",
+      "execution_policy": "manual_only",
+      "local_execution_allowed": false,
+      "default_action_on_run_click": "generate_prompt_file_only",
+      "evidence": "Not yet tested against local models. Evidence attribution (cite exact filename + verbatim text for each gap closure) is the same failure mode that broke Stage 3 on all 3 local models — those models invented filenames and ignored the citation format entirely. This stage adds MORE source files than Stage 3, making local failure more likely. Defaults to manual_only until evidence exists to the contrary.",
+      "ui_must_show": [
+        "Stage requires manual Claude.ai review — local execution is disabled by default",
+        "Evidence attribution is critical: every gap closure must cite exact source file and verbatim text — do not accept output that generalizes without citing"
+      ]
+    },
+    "cover_letter": {
+      "script": "cover_letter.sh",
+      "description": "Cover letter draft for one resume against one JD",
+      "task_shape": "single-document, generative (not extractive/scoring)",
+      "execution_policy": "untested",
+      "local_execution_allowed": false,
+      "default_action_on_run_click": "generate_prompt_file_only",
+      "evidence": "Never tested against a local model in this project. Defaults to manual_only until evidence exists — do not assume Stage 2's reliability transfers to a different task shape without testing.",
+      "ui_must_show": [
+        "This stage has not been evaluated against any local model — manual-only until tested"
+      ]
+    }
+  },
+
+  "model_recommendations": {
+    "stage_2_ats_optimize": {
+      "tested_models": [
+        {
+          "name": "llama3:8b",
+          "context_length": 8192,
+          "result": "adequate_with_caveat",
+          "note": "Fabricated one Critical Gap. Fast (~280s observed)."
+        },
+        {
+          "name": "llama3.1:8b",
+          "context_length": 131072,
+          "result": "adequate_with_caveat",
+          "note": "Same fabrication pattern as llama3:8b. Fast (~280s observed)."
+        },
+        {
+          "name": "deepseek-r1:14b",
+          "context_length": 131072,
+          "result": "best_observed",
+          "note": "No fabricated claims, accurate grounded gaps. Slow (~870s observed) — reasoning-style model generates extended internal output."
+        }
+      ],
+      "recommendation": "deepseek-r1:14b if time allows; llama3.1:8b if speed matters more than the marginal quality gain. Either way: advisory trust level only, never authoritative without human review."
+    }
+  },
+
+  "cost_and_limits": {
+    "_meta": "Populated only for providers actually integrated. Currently Ollama-only (local, no per-token cost). Cloud provider fields are placeholders for if/when cloud integration is added — DO NOT treat these as live until a provider is actually wired in and the values are verified against real billing.",
+    "ollama": {
+      "cost_per_request": 0,
+      "cost_model": "local compute only — no API cost, but real cost in time/electricity/device wear not tracked here",
+      "rate_limits": "none (local)",
+      "context_limits_source": "queried live from /api/tags per model, never hardcoded"
+    },
+    "claude_api": {
+      "integrated": false,
+      "cost_per_request": null,
+      "cost_model": "NOT YET INTEGRATED — do not display cost estimates to users until this is wired in and verified against real Anthropic billing/pricing pages",
+      "rate_limits": null,
+      "context_limits_source": null
+    },
+    "openai_api": {
+      "integrated": false,
+      "cost_per_request": null,
+      "cost_model": "NOT YET INTEGRATED — same caveat as claude_api",
+      "rate_limits": null,
+      "context_limits_source": null
+    }
+  },
+
+  "default_behavior": {
+    "principle": "Clicking 'Run' must never silently execute on an unverified path. The default action is always the SAFEST option for that stage, defined per-stage above as default_action_on_run_click.",
+    "values": {
+      "generate_prompt_file_only": "Produces the prompt file and stops. Shows the user a clear next step: upload to Claude.ai. No model is called.",
+      "execute_immediately": "Safe to run with no gating — deterministic, no LLM involved.",
+      "prompt_user_local_or_cloud": "Shows an explicit choice (not a pre-selected default toggle) between local and cloud, with the trust-level and cost implications of each visible before the user picks."
+    }
+  }
+}
