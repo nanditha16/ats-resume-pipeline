@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ jd }} Outreach targets (Stage 10)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/review.css">
+<link rel="stylesheet" href="/static/css/network.css">
+</head>
+<body class="review-body">
+<div class="review-shell">
+
+  <header class="review-header">
+    <a href="/" class="btn btn--ghost btn--sm">← Dashboard</a>
+    <div class="review-title">
+      <h1>{{ jd }} <span class="review-subtitle">Outreach targets (Stage 10)</span></h1>
+      <p id="netMeta" class="review-meta">Loading…</p>
+    </div>
+    <div class="review-actions">
+      <button id="briefBtn" class="btn btn--ghost btn--sm" onclick="generateBrief(false)">Generate brief</button>
+      <button id="saveBtn" class="btn btn--primary btn--sm" onclick="saveTargets()">Save targets &amp; status</button>
+    </div>
+  </header>
+
+  <div id="errorBanner" class="banner banner--warn" style="display:none;"></div>
+  <div id="resultBanner" class="banner" style="display:none;"></div>
+
+  <p class="review-help">
+    Computed from files already on disk: the Stage 9 rescore, this JD's text in
+    <strong>input/other/{{ jd }}.txt</strong>, and the final resume. No model call and no LinkedIn access:
+    the brief contains search links you open in your own logged-in browser. Record who you picked,
+    then update each person's status and the application outcome as things happen; every change is
+    logged to <strong>policy/run_log.jsonl</strong> so the score weights can be recalibrated on real results.
+  </p>
+
+  <section class="net-grid">
+    <div class="net-panel" id="scorePanel"><p class="empty-state">Loading…</p></div>
+    <div class="net-panel" id="metaPanel"></div>
+  </section>
+
+  <section class="net-panel" id="importPanel">
+    <h2 class="net-h2">Import scout results</h2>
+    <p class="hint">In Claude with Chrome connected, run <code class="net-code">/linkedin-target-scout {{ jd }}</code>.
+      The skill reads this JD's context from the app, finds named people in your own LinkedIn session,
+      then pastes its JSON here and asks you before clicking Import. You can also paste its output yourself.</p>
+    <textarea id="importText" class="net-import" rows="6" placeholder="Paste the skill's JSON block or its Target 1 / Target 2 / Target 3 output"></textarea>
+    <div class="net-row">
+      <button id="importBtn" class="btn btn--primary btn--sm" onclick="importScout()">Import</button>
+      <span id="scoutSummary" class="hint"></span>
+    </div>
+  </section>
+
+  <section class="net-panel" id="briefPanel"></section>
+
+  <section class="net-panel">
+    <h2 class="net-h2">Application</h2>
+    <div class="net-row">
+      <label class="net-field">Applied on <input type="date" id="appliedOn"></label>
+      <label class="net-field">Outcome <select id="appOutcome"></select></label>
+    </div>
+  </section>
+
+  <section id="targetSlots" class="net-targets"></section>
+
+</div>
+
+<script src="/static/js/network.js"></script>
+<script>initNetwork({{ jd|tojson }});</script>
+</body>
+</html>

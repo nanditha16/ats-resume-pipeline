@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ jd }} — Trim to Fit (Stage 7)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/review.css">
+<link rel="stylesheet" href="/static/css/trim.css">
+</head>
+<body class="review-body">
+<div class="review-shell">
+
+  <header class="review-header">
+    <a href="/" class="btn btn--ghost btn--sm">← Dashboard</a>
+    <div class="review-title">
+      <h1>{{ jd }} <span class="review-subtitle">— Trim to Fit</span></h1>
+      <p id="trimMeta" class="review-meta">Loading…</p>
+    </div>
+    <div class="review-actions">
+      <label class="cap-control">
+        Cap per role
+        <input type="number" id="capInput" value="5" min="1" max="20" onchange="reloadManifest()">
+      </label>
+      <span id="deleteCount" class="accepted-count">0 selected to delete</span>
+      <button id="applyBtn" class="btn btn--danger btn--sm" onclick="applyTrim()" disabled>
+        Delete selected bullets
+      </button>
+    </div>
+  </header>
+
+  <div id="errorBanner" class="banner banner--warn" style="display:none;"></div>
+  <div id="resultBanner" class="banner" style="display:none;"></div>
+
+  <p class="review-help">
+    Scored directly from <strong>{{ jd }}.txt</strong>'s own wording and the finalized resume —
+    no model call. Each bullet's score combines: how many of this JD's emphasized terms it contains,
+    whether it has a quantified metric, whether it overlaps heavily with a stronger bullet in the
+    same role, and its length. Scans both Professional Experience roles and Career Highlights —
+    only sections over the cap show up at all. Checked by default = the
+    weakest bullets in each over-cap role, recommended for removal — nothing is deleted until you
+    click <strong>Delete selected bullets</strong>.
+  </p>
+
+  <div id="roleGroups">
+    <p class="empty-state">Loading…</p>
+  </div>
+
+</div>
+
+<script src="/static/js/trim.js"></script>
+<script>initTrim({{ jd|tojson }});</script>
+</body>
+</html>

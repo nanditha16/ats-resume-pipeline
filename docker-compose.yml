@@ -1,0 +1,18 @@
+services:
+  markitdown:
+    build: .
+    container_name: markitdown
+    volumes:
+      - ./:/app
+      - ./input:/input
+      - ./output:/output
+      - hf-cache:/root/.cache/huggingface
+      - ${GCLOUD_CONFIG_DIR:-~/.config/gcloud}:/root/.config/gcloud
+      - ${MARKITDOWN_CODESPACE_DIR:-~/.markitdown-codespace}:/root/.markitdown-codespace
+    working_dir: /app
+    tty: true
+    ports:
+      - "5001:5001"
+
+volumes:
+  hf-cache:

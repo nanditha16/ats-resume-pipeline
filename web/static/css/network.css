@@ -1,0 +1,89 @@
+/* Stage 10 page. Reuses style.css tokens so it reads as part of the same tool. */
+
+.net-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) { .net-grid { grid-template-columns: 1fr; } }
+
+.net-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.net-grid .net-panel { margin-bottom: 0; }
+
+.net-h2 { font-size: 14px; font-weight: 600; margin: 0 0 10px; display: flex; gap: 10px; align-items: baseline; }
+.net-h2 a { font-size: 12px; font-weight: 400; color: var(--accent); }
+.net-h3 { font-size: 12px; font-weight: 600; color: var(--text-muted); margin: 14px 0 6px; }
+
+.net-score { display: flex; align-items: baseline; gap: 8px; }
+.net-score-num { font-size: 40px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.net-score-of { font-size: 12px; color: var(--text-muted); }
+
+.net-gate { font-size: 13px; font-weight: 500; margin: 8px 0 12px; padding: 6px 10px; border-radius: var(--radius-sm); }
+.net-gate--in  { background: var(--green-bg); color: var(--green); }
+.net-gate--out { background: var(--gray-bg);  color: var(--text-muted); }
+
+.net-breakdown { width: 100%; border-collapse: collapse; font-size: 12px; }
+.net-breakdown td { padding: 4px 0; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+.net-breakdown td:last-child { text-align: right; color: var(--text); font-variant-numeric: tabular-nums; width: 56px; }
+
+.net-kos { list-style: none; padding: 0; margin: 0 0 8px; }
+.net-ko { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; padding: 4px 0; color: var(--text-muted); }
+.net-ko-tag { flex-shrink: 0; min-width: 66px; text-align: center; font-size: 11px; font-weight: 600;
+              padding: 1px 6px; border-radius: var(--radius-sm); }
+.net-ko--pass .net-ko-tag    { background: var(--green-bg);  color: var(--green); }
+.net-ko--fail .net-ko-tag    { background: var(--red-bg);    color: var(--red); }
+.net-ko--unknown .net-ko-tag { background: var(--yellow-bg); color: var(--yellow); }
+.net-ko--na .net-ko-tag      { background: var(--gray-bg);   color: var(--text-dim); }
+
+.net-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.net-field--inline { margin-bottom: 0; }
+.net-field input, .net-field select {
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+}
+.net-field input:focus-visible, .net-field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.net-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 10px; }
+
+.net-src { font-size: 10.5px; color: var(--text-dim); margin-left: 6px; }
+.net-src--missing { color: var(--yellow); }
+
+.net-brief {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text);
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+}
+.net-brief a { color: var(--accent); }
+
+.net-targets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1100px) { .net-targets { grid-template-columns: 1fr; } }
+.net-target { margin-bottom: 0; }
+
+.banner--ok { background: var(--green-bg); color: var(--green); }
+
+.net-import {
+  width: 100%; box-sizing: border-box; resize: vertical; margin: 6px 0 10px;
+  background: var(--surface-2); border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+  color: var(--text); font-family: var(--font-mono); font-size: 12px; padding: 8px;
+}
+.net-import:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.net-code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--accent); }
+.net-empty-slot { border-style: dashed; }
+.net-warn { color: var(--yellow); font-size: 12px; margin: 4px 0; }
